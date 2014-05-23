@@ -4,6 +4,9 @@
  */
 package net.yoomai.virgo.spider;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConfigurationFactory;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -36,7 +39,15 @@ import java.util.Map;
 public class Emulator {
     private final static Log log = LogFactory.getLog(Emulator.class);
 
-    public Emulator() {}
+    private PropertiesConfiguration config;
+
+    public Emulator() {
+        try {
+            config = new PropertiesConfiguration("globa.properties");
+        } catch (ConfigurationException e) {
+            log.error("初始化Config模块失败: " + e.getCause());
+        }
+    }
 
     /**
      * 模拟用户登录
@@ -85,10 +96,21 @@ public class Emulator {
      * @param url
      * @param cookies
      */
-    public void getPage(String url, String cookies) {
+    public void getPage(String id, String url, String cookies) {
         HttpGet httpGet = new HttpGet(url);
+        // 设置cookie
         httpGet.setHeader("Cookie", cookies);
-        httpGet.setHeader("Content-Type", "text/html;charset=gb2312");
+        // 设置Content-Type
+        String contentType = config.getString("spider" + id + ".content_type");
+        if (contentType == null || "".equals(contentType.trim())) {
+            contentType = "text/html;charset=gb2312";
+        }
+        httpGet.setHeader("Content-Type", contentType);
+        // 设置User-Agent
+        String agent = config.getString("spider" + id + ".agent");
+        if (agent != null && !"".equals(agent.trim())) {
+            httpGet.setHeader("User-Agent", agent);
+        }
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response = null;
@@ -96,6 +118,7 @@ public class Emulator {
             response = httpClient.execute(httpGet);
         } catch (IOException e) {
             log.error(e.getMessage() + " : " + e.getCause());
+            response = null;
         }
 
         if (response != null) {
@@ -111,9 +134,13 @@ public class Emulator {
                         outputStream.write(bytes, 0, count);
                     }
                 } catch (IOException e) {
-                    log.error(e.getMessage() + " : " + e.getCause());
+                    log.error("获取页面失败: " + e.getMessage() + " : " + e.getCause());
                 }
+            } else {
+                log.info("获取页面失败，获得响应代码为: " + statusLine.getStatusCode());
             }
+        } else {
+            log.error("GetPage意外终止，请检查程序或者参数配置是否合理.");
         }
     }
 
