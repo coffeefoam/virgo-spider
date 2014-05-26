@@ -40,6 +40,6 @@ public class EmulatorTest {
         params.put("phonenum", "%CA%E4%C8%EB%C4%FA%B5%C4%CA%D6%BB%FA%BA%C5%C2%EB");
 
         cookie = emulator.login(params, "http://www.icis-china.com/Chemease/information/default.aspx");
-        emulator.getPage("http://www.icis-china.com/Chemease/Price/Price.aspx?configid=6700", cookie);
+        emulator.getPage("0", "http://www.icis-china.com/Chemease/Price/Price.aspx?configid=6700", cookie);
     }
 }

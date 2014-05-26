@@ -5,8 +5,8 @@
 package net.yoomai.virgo.spider;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationFactory;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -20,14 +20,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 用户模拟器，模拟用户的登录，页面访问等操作
@@ -43,7 +38,7 @@ public class Emulator {
 
     public Emulator() {
         try {
-            config = new PropertiesConfiguration("globa.properties");
+            config = new PropertiesConfiguration("global.properties");
         } catch (ConfigurationException e) {
             log.error("初始化Config模块失败: " + e.getCause());
         }
@@ -126,7 +121,10 @@ public class Emulator {
             if (statusLine.getStatusCode() == 200) {
                 try {
                     InputStream is = response.getEntity().getContent();
-                    OutputStream outputStream = System.out;
+                    // OutputStream outputStream = System.out;
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                    OutputStream outputStream = FileUtils.openOutputStream(
+                            new File(config.getString("spider" + id + ".store") + sdf.format(new Date()) + ".html"));
 
                     byte[] bytes = new byte[1024];
                     int count = 0;
