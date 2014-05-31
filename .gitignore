@@ -12,3 +12,9 @@ hs_err_pid*
 *.iml
 .idea
 store/
+
+store6700-20140531.html
+
+out/test/virgo-spider/global.properties
+
+out/test/virgo-spider/resources/global.properties
