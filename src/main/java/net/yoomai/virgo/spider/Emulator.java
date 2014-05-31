@@ -91,7 +91,7 @@ public class Emulator {
      * @param url
      * @param cookies
      */
-    public void getPage(String id, String url, String cookies) {
+    public void getPage(String id, String filename, String url, String cookies) {
         HttpGet httpGet = new HttpGet(url);
         // 设置cookie
         httpGet.setHeader("Cookie", cookies);
@@ -123,8 +123,10 @@ public class Emulator {
                     InputStream is = response.getEntity().getContent();
                     // OutputStream outputStream = System.out;
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                    // 将抓取到的页面保存在服务器端
                     OutputStream outputStream = FileUtils.openOutputStream(
-                            new File(config.getString("spider" + id + ".store") + sdf.format(new Date()) + ".html"));
+                            new File(config.getString("spider" + id + ".store") + filename + "-" +
+                                    sdf.format(new Date()) + ".html"));
 
                     byte[] bytes = new byte[1024];
                     int count = 0;
